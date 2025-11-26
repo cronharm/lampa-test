@@ -12,6 +12,14 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
                     var btn = $('<div class="liya-btn" style="background:#ff4081;color:white;padding:8px 16px;border-radius:4px;margin:4px;text-align:center;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-width:120px;">Смотреть от Лии 💕</div>');
 
                     btn.on('click', function() {
+                        var movie = e.data; // <-- вот оно!
+                        
+                        if(!movie || !movie.id){
+                            console.log('Нет данных фильма!', movie);
+                            Lampa.Noty.show('Не удалось определить фильм 😢');
+                            return;
+                        }
+                        
                         Lampa.Noty.show('Проверяем фильм на сервере...');
 
                         // Пример запроса на сервер

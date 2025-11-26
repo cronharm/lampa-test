@@ -69,16 +69,7 @@
                                             // 1. Отписываемся от навигации
                                             Lampa.Selector.set(modal, []); // ← обнуляем селекторы
                                     
-                                            // 2. Закрываем окно через его собственный метод
-                                            modal.destroy(); // ← именно так нужно закрывать!
-                                    
-                                            // 3. Возвращаем фокус на предыдущий слой (опционально, но надёжно)
-                                            setTimeout(() => {
-                                                var btnNow = $('.liya-btn').last();
-                                                if (btnNow.length) {
-                                                    Lampa.Selector.set(null, btnNow);
-                                                }
-                                            }, 50);
+                                            Lampa.Modal.close();
                                         }
                                     });
 

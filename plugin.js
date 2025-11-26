@@ -37,44 +37,43 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
                             data: { movie_id: movie.name }, // передаём ID фильма
                             dataType: 'json',
                             success: function(response) {
-
                                 if(!response.available || !response.sources || !response.sources.length){
-                                    Lampa.Noty.show('Источники не найдены 😢');
-                                    return;
-                                }
-                        
-                                // Создаём HTML для списка ссылок
-                                let html = $('<div class="liya-sources"></div>');
-                        
-                                response.sources.forEach(function(src){
-                                    let item = $(`
-                                        <div class="selector liya-source-item" 
-                                             style="padding:10px;margin:6px;background:#222;border-radius:8px;">
-                                            ${src.name}
-                                        </div>
-                                    `);
-                        
-                                    item.on('hover:enter', function(){
-                                        Lampa.Player.play({
-                                            title: movie.title || 'Видео',
-                                            url: src.url,
-                                            poster: movie.poster || '',
-                                            subtitles: movie.subtitles || []
-                                        });
-                                    });
-                        
-                                    html.append(item);
-                                });
-                        
-                                // Открываем боковое меню
-                                Lampa.Modal.open({
-                                    title: 'Источники от Лии 💕',
-                                    html: html,
-                                    size: 'medium',
-                                    onBack: function(){
-                                        Lampa.Modal.close();
-                                    }
-                                });
+									Lampa.Noty.show('Источники не найдены 😢');
+									return;
+								}
+
+								// Создаём HTML для списка ссылок
+								let html = $('<div class="liya-sources"></div>');
+
+								response.sources.forEach(function(src){
+									let item = $(`
+										<div class="selector liya-source-item" 
+											 style="padding:10px;margin:6px;background:#222;border-radius:8px;">
+											${src.name}
+										</div>
+									`);
+
+									item.on('hover:enter', function(){
+										Lampa.Player.play({
+											title: movie.title || 'Видео',
+											url: src.url,
+											poster: movie.poster || '',
+											subtitles: movie.subtitles || []
+										});
+									});
+
+									html.append(item);
+								});
+
+								// Открываем боковое меню
+								Lampa.Modal.open({
+									title: 'Источники от Лии 💕',
+									html: html,
+									size: 'medium',
+									onBack: function(){
+										Lampa.Modal.close();
+									}
+								});
                             },
                             error: function() {
                                 Lampa.Noty.show('Ошибка при запросе к серверу 😵');

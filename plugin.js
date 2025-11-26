@@ -1,27 +1,28 @@
 (function() {
     'use strict';
 
-    // Проверяем, что мы в Lampa
     if (typeof Lampa !== 'undefined') {
-        // Добавляем кнопку в карточки (фильмы/сериалы)
-        Lampa.Listener.follow('card', function (e) {
-            if (e.type === 'add') {
-                // Создаём кнопку — иконка просмотра
-                var btn = $('<div class="card__view icon-view"></div>');
-                
-                // При клике/наведении — действие
-                btn.on('hover:enter', function () {
-                    // Hello World! Замени на реальный код, например, Lampa.Player.play(...)
-                    Lampa.Noty.show('Hello World from Liya! Кнопка работает 😊');
-                    // Или для теста: alert('Hello World!');
+        // Ждём готовности Lampa
+        Lampa.Listener.follow('app', function (e) {
+            if (e.type === 'ready') {
+                // Теперь добавляем кнопку в карточки
+                Lampa.Listener.follow('card', function (e) {
+                    if (e.type === 'add') {
+                        // Создаём кнопку — иконка просмотра
+                        var btn = $('<div class="card__view icon-view"></div>');
+                        
+                        // При клике/наведении — действие
+                        btn.on('hover:enter', function () {
+                            Lampa.Noty.show('Hello World from Liya! Кнопка работает 😊');
+                        });
+
+                        // Вставляем кнопку в карточку
+                        e.object.find('.card__buttons').append(btn);
+                    }
                 });
 
-                // Вставляем кнопку в карточку
-                e.object.find('.card__buttons').append(btn);
+                console.log('Liya Hello Watch plugin loaded after ready!');
             }
         });
-
-        // Логируем, что плагин загрузился (для дебага в консоли Lampa)
-        console.log('Liya Hello Watch plugin loaded!');
     }
 })();

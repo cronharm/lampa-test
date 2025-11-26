@@ -16,7 +16,7 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
 
                         // Пример запроса на сервер
                         $.ajax({
-                            url: 'http://212.86.102.67/check.php', // твой API endpoint
+                            url: 'https://твoй-сервер.com/check_movie', // твой API endpoint
                             method: 'POST',
                             data: { movie_id: e.object.data.id }, // передаём ID фильма
                             dataType: 'json',

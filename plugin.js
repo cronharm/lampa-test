@@ -12,7 +12,7 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
                     var btn = $('<div class="liya-btn" style="background:#ff4081;color:white;padding:8px 16px;border-radius:4px;margin:4px;text-align:center;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-width:120px;">Смотреть от Лии 💕</div>');
 
                     btn.on('click', function() {
-                        var movie = e.data; // <-- вот оно!
+                        var movie = e.data.movie; // <-- вот оно!
                         console.log('Посмотрим!', e);
                         
                         if(!movie || !movie.id){
@@ -27,7 +27,7 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
                         $.ajax({
                             url: 'http://212.86.102.67/check.php', // твой API endpoint
                             method: 'POST',
-                            data: { movie_id: e.object.data.id }, // передаём ID фильма
+                            data: { movie_id: movie.name }, // передаём ID фильма
                             dataType: 'json',
                             success: function(response) {
                                 if(response.available) {

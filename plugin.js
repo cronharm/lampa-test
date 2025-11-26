@@ -16,7 +16,6 @@
                             <span>Смотреть локально</span>
                         </div>`);
 
-                        // Меняем на hover:enter для пульта
                         btn.on('hover:enter', function() {
                             var movie = e.data.movie;
                             console.log('Liya: Запуск просмотра для', movie ? movie.title : 'неизвестного');
@@ -31,7 +30,7 @@
                             $.ajax({
                                 url: 'http://212.86.102.67/check.php',
                                 method: 'POST',
-                                data: { movie_id: movie.id }, // Исправил на movie.id, как логично
+                                data: { movie_id: movie.id },
                                 dataType: 'json',
                                 success: function(response) {
                                     if (!response.available || !response.sources || !response.sources.length) {
@@ -56,32 +55,44 @@
                                                 poster: movie.poster || '',
                                                 subtitles: movie.subtitles || []
                                             });
-                                            // Закрываем модал после play
-                                            Lampa.Modal.close();
+                                            Lampa.Modal.close(); // Закрытие после play
                                         });
 
                                         html.append(item);
                                     });
 
-                                    // Открываем модал с контролем фокуса
+                                    // Открываем модал
                                     Lampa.Modal.open({
                                         title: 'Источники от Лии 💕',
                                         html: html,
                                         size: 'medium',
                                         onBack: function() {
-                                            Lampa.Modal.close();
+                                            Lampa.Modal.close(); // Усиленное закрытие на back
                                         }
                                     });
 
-                                    // Добавляем контроллер для фокуса в модале (чтобы пульт бегал по selector)
-                                    Lampa.Controller.add('liya_modal', {
-                                        toggle: function() {
-                                            Lampa.Controller.collectionSet(controller.collection, html);
-                                            Lampa.Controller.collectionFocus(0, html);
-                                        },
-                                        collection: html.find('.liya-source-item')
+                                    // Ждём отрисовки модала и настраиваем фокус
+                                    setTimeout(function() {
+                                        // Контроллер с массивом элементов
+                                        var items = html.find('.liya-source-item').toArray();
+                                        Lampa.Controller.add('liya_modal', {
+                                            toggle: function() {
+                                                Lampa.Controller.collectionSet(controller.collection, items);
+                                                Lampa.Controller.collectionFocus(0, items[0]);
+                                            },
+                                            collection: items,
+                                            invisible: true // Чтобы не мешал глобальному
+                                        });
+                                        Lampa.Controller.toggle('liya_modal');
+                                    }, 100); // Небольшая задержка для DOM
+
+                                    // Обработчик клика мимо (backdrop)
+                                    $(document).on('click.liya-modal', '.modal__content', function(ev) {
+                                        if (!$(ev.target).closest('.liya-sources').length) {
+                                            Lampa.Modal.close();
+                                            $(document).off('click.liya-modal');
+                                        }
                                     });
-                                    Lampa.Controller.toggle('liya_modal');
 
                                 },
                                 error: function() {
@@ -90,7 +101,6 @@
                             });
                         });
 
-                        // Интервал с чуть большей задержкой, если нужно
                         var interval = setInterval(function() {
                             var buttonsBlock = $(e.object).find('.full-start-new__buttons');
                             if (!buttonsBlock.length) {
@@ -101,13 +111,12 @@
                                 buttonsBlock.append(btn);
                                 console.log('Liya: Кнопка добавлена в панель');
                             }
-                        }, 300); // Увеличил до 300ms для стабильности
+                        }, 300);
 
-                        // Автоочистка интервала через 5 сек, если что-то сломалось
                         setTimeout(function() { clearInterval(interval); }, 5000);
                     }
                 });
-                console.log('Liya play-button ready!');
+                console.log('Liya play-button fixed ready!');
             }
         });
     }

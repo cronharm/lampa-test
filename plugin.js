@@ -64,7 +64,10 @@
                                     let modal = Lampa.Modal.open({
                                         title: 'Источники от Лии 💕',
                                         html: list,
-                                        size: 'medium'
+                                        size: 'medium',
+                                        onBack: function(){
+    										Lampa.Modal.close();
+    									}
                                     });
 
                                     // 🔥 Регистрируем навигацию по элементам

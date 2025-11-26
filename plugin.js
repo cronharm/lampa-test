@@ -67,6 +67,12 @@
                                         size: 'medium',
                                         onBack: function(){
     										Lampa.Modal.close();
+                                            setTimeout(function () {
+        var btnNow = $('.liya-btn').last();
+        if (btnNow.length) {
+            Lampa.Selector.set(null, btnNow);
+        }
+    }, 50);
     									}
                                     });
 

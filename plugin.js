@@ -1,7 +1,7 @@
 (function() {
 'use strict';
 
-
+```
 if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
     Lampa.Listener.follow('app', function (e) {
         if (e.type === 'ready') {
@@ -56,6 +56,6 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
         }
     });
 }
-
+```
 
 })();

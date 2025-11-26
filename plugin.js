@@ -6,40 +6,35 @@
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
                     if (e.type === 'start') {
-                        $('.liya-buttons-btn').remove(); // Чистим
+                        $('.liya-btn').remove();
                         
                         setTimeout(function() {
                             try {
-                                // Основной: в твой блок
+                                // Целимся в твой блок
                                 var buttonsBlock = $(e.object).find('.full-start-new__buttons') || $('.full-start-new__buttons');
                                 if (buttonsBlock.length) {
-                                    var btn = $('<div class="liya-buttons-btn selector" style="background: #ff4081; color: white; padding: 10px 15px; border-radius: 6px; margin: 5px; text-align: center; font-weight: bold; cursor: pointer; display: inline-block; vertical-align: middle;">Смотреть от Лии 💕</div>');
+                                    var btn = $('<div class="liya-btn selector" style="background: #ff4081; color: white; padding: 8px 16px; border-radius: 4px; margin: 4px; text-align: center; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 120px;">Смотреть от Лии 💕</div>');
                                     
                                     btn.on('hover:enter', function () {
-                                        Lampa.Noty.show('В панели кнопок! Теперь твой плеер сюда, Андрей 😘');
+                                        Lampa.Noty.show('В панели! Теперь твой код для просмотра, Андрей 😘');
                                     });
                                     
                                     buttonsBlock.append(btn);
-                                    var visible = btn.is(':visible') && btn.outerHeight() > 0;
-                                    console.log('Liya: Button added to .full-start-new__buttons, visible:', visible);
+                                    console.log('Liya: Added to .full-start-new__buttons');
                                     return;
                                 }
                                 
-                                // Fallback
-                                console.log('Liya: Buttons block not found, fallback to .full-start');
-                                var fallback = $(e.object).find('.full-start') || $('.full-start');
-                                if (fallback.length) {
-                                    fallback.append(btn);
-                                    console.log('Liya: Fallback to full-start');
-                                }
+                                // Если не нашлось, лог классов в похожих блоках
+                                var possibleBlocks = $(e.object).find('[class*="buttons"], .full-start *').filter(function() { return this.className.includes('buttons') || this.className.includes('action'); });
+                                console.log('Liya: Buttons not found, possible classes:', possibleBlocks.map(function() { return this.className; }).get());
                                 
                             } catch (err) {
                                 console.error('Liya: Error:', err.message);
                             }
-                        }, 600);
+                        }, 700);
                     }
                 });
-                console.log('Liya buttons-watch ready!');
+                console.log('Liya target-buttons ready!');
             }
         });
     }

@@ -13,6 +13,7 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
 
                     btn.on('click', function() {
                         var movie = e.data; // <-- вот оно!
+                        console.log('Посмотрим!', e);
                         
                         if(!movie || !movie.id){
                             console.log('Нет данных фильма!', movie);

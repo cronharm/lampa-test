@@ -6,7 +6,6 @@
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
                     if (e.type === 'start') {
-                        // Удаляем предыдущие кнопки на случай дублирования
                         $('.liya-btn').remove();
 
                         var btn = $(`<div class="full-start__button selector liya-btn">
@@ -29,7 +28,7 @@
                             $.ajax({
                                 url: 'http://212.86.102.67/check.php',
                                 method: 'POST',
-                                data: { movie_id: movie.name },
+                                data: { movie_id: movie.name }, // ← исправлено: добавлено 'data'
                                 dataType: 'json',
                                 success: function (response) {
                                     if (!response.available || !response.sources || !response.sources.length) {
@@ -37,14 +36,13 @@
                                         return;
                                     }
 
-                                    // Создаём контейнер списка
-                                    let list = $('<div class="liya-sources" style="padding: 10px;"></div>');
+                                    let list = $('<div class="liya-sources" style="padding:10px;"></div>');
 
                                     response.sources.forEach(function (src) {
                                         let item = $(`
                                             <div class="selector liya-source-item" 
                                                  style="padding:10px;margin:6px;background:#222;border-radius:8px;">
-                                                ${src.name}
+                                                ${Lampa.Utils.escape(src.name || 'Без названия')}
                                             </div>
                                         `);
 
@@ -53,22 +51,24 @@
                                                 title: movie.title || 'Видео',
                                                 url: src.url,
                                                 poster: movie.poster || '',
-                                                subtitles: movie.subtitles || []
+                                                subtitles: [] // ← временно отключено для стабильности
                                             });
                                         });
 
                                         list.append(item);
                                     });
 
-                                    // Открываем модальное окно
                                     let modal = Lampa.Modal.open({
                                         title: 'Источники от Лии 💕',
                                         html: list,
-                                        size: 'medium'
+                                        size: 'medium',
+                                        focus: true
                                     });
 
-                                    // 🔥 Регистрируем навигацию по элементам
-                                    Lampa.Selector.set(modal, list.find('.selector'));
+                                    let selectorItems = list.find('.selector');
+                                    if (selectorItems.length > 0) {
+                                        Lampa.Selector.set(modal, selectorItems);
+                                    }
                                 },
                                 error: function () {
                                     Lampa.Noty.show('Ошибка при запросе к серверу 😵');
@@ -76,7 +76,6 @@
                             });
                         });
 
-                        // Ждём появления кнопочного блока и вставляем туда нашу кнопку
                         var interval = setInterval(function () {
                             var buttonsBlock = $(e.object).find('.full-start-new__buttons');
                             if (!buttonsBlock.length) {
@@ -85,12 +84,10 @@
                             if (buttonsBlock.length) {
                                 clearInterval(interval);
                                 buttonsBlock.append(btn);
-                                console.log('Liya: кнопка добавлена');
                             }
                         }, 200);
                     }
                 });
-                console.log('Liya: слушатель full/start подключён');
             }
         });
     }

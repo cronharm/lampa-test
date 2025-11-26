@@ -1,43 +1,35 @@
 (function() {
     'use strict';
 
-    if (typeof Lampa !== 'undefined') {
-        // Добавляем шаблон для full-view
-        Lampa.Template.add('full', {
-            // Это секция под описанием или в buttons
-            liya_watch: {
-                html: function() {
-                    return '<div class="full-block liya-section"><div class="full-block__title">Liya: Смотреть 💕</div><div class="full-block__content"><div class="selector" data-action="liya-play">Запустить просмотр от Лии</div></div></div>';
-                },
-                bind: function(select) {
-                    // Обработчик клика
-                    select.find('[data-action="liya-play"]').on('hover:enter', function() {
-                        Lampa.Noty.show('Привет из шаблона! Теперь впихни свой плеер-код сюда 😘');
-                        // Здесь твой код: Lampa.Player.play({url: '...', ...}) или что нужно
-                    });
-                }
-            }
-        });
-
+    if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
                     if (e.type === 'start') {
-                        // Вставляем нашу секцию после описания
+                        // Удаляем старые кнопки
+                        $('.liya-desc-btn').remove();
+                        
                         setTimeout(function() {
-                            var desc = e.object.find('.full-description, .info__description');
-                            if (desc.length) {
-                                desc.after(Lampa.Template.get('full', 'liya_watch', {}));
-                                console.log('Liya: Template added after description');
+                            // Ищем описание (расширенные селекторы)
+                            var descBlock = e.object.find('.full-description__text, .full__description, .info__description, .full-description, .view--full .description, .full-text');
+                            if (descBlock.length) {
+                                var btn = $('<div class="liya-desc-btn selector" style="background: #ff4081; color: white; padding: 12px 20px; border-radius: 8px; margin: 15px 0; text-align: center; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">Смотреть от Лии 💕</div>');
+                                
+                                btn.on('hover:enter', function () {
+                                    Lampa.Noty.show('Привет под описанием! Всё работает, добавляй свой код 😘');
+                                });
+                                
+                                descBlock.after(btn);
+                                // Проверяем видимость
+                                var visible = btn.is(':visible') && btn.outerHeight() > 0;
+                                console.log('Liya: Button added after description, visible:', visible);
                             } else {
-                                // Fallback в конец full
-                                e.object.find('.full-start').append(Lampa.Template.get('full', 'liya_watch', {}));
-                                console.log('Liya: Template added to full-start');
+                                console.log('Liya: No description block found');
                             }
-                        }, 1000);
+                        }, 600);
                     }
                 });
-                console.log('Liya template-watch ready!');
+                console.log('Liya simple-desc ready!');
             }
         });
     }

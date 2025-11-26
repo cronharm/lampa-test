@@ -6,6 +6,7 @@
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
                     if (e.type === 'start') {
+                        // Удаляем предыдущие кнопки на случай дублирования
                         $('.liya-btn').remove();
 
                         var btn = $(`<div class="full-start__button selector liya-btn">
@@ -16,7 +17,7 @@
                             <span>Смотреть локально</span>
                         </div>`);
 
-                        btn.on('click', function () {
+                        btn.on('hover:enter', function () {
                             var movie = e.data.movie;
                             if (!movie || !movie.id) {
                                 Lampa.Noty.show('Не удалось определить фильм 😢');
@@ -36,7 +37,8 @@
                                         return;
                                     }
 
-                                    let html = $('<div class="liya-sources"></div>');
+                                    // Создаём контейнер списка
+                                    let list = $('<div class="liya-sources" style="padding: 10px;"></div>');
 
                                     response.sources.forEach(function (src) {
                                         let item = $(`
@@ -55,25 +57,18 @@
                                             });
                                         });
 
-                                        html.append(item);
+                                        list.append(item);
                                     });
 
-                                    // Создаем модальное окно с поддержкой навигации
+                                    // Открываем модальное окно
                                     let modal = Lampa.Modal.open({
                                         title: 'Источники от Лии 💕',
-                                        html: html,
+                                        html: list,
                                         size: 'medium'
                                     });
 
-                                    // Подписываемся на событие закрытия модального окна по back
-                                    Lampa.Listener.follow('modal', function (event) {
-                                        if (event.type === 'closed' && event.object === modal) {
-                                            Lampa.Listener.follow('modal', null); // отписываемся
-                                        }
-                                    });
-
-                                    // Чтобы окно закрывалось по клику вне — это делает сам Lampa, если не помешать
-                                    // Главное — не блокировать всплытие и не переопределять поведение
+                                    // 🔥 Регистрируем навигацию по элементам
+                                    Lampa.Selector.set(modal, list.find('.selector'));
                                 },
                                 error: function () {
                                     Lampa.Noty.show('Ошибка при запросе к серверу 😵');
@@ -81,6 +76,7 @@
                             });
                         });
 
+                        // Ждём появления кнопочного блока и вставляем туда нашу кнопку
                         var interval = setInterval(function () {
                             var buttonsBlock = $(e.object).find('.full-start-new__buttons');
                             if (!buttonsBlock.length) {
@@ -89,12 +85,12 @@
                             if (buttonsBlock.length) {
                                 clearInterval(interval);
                                 buttonsBlock.append(btn);
-                                console.log('Liya: Added to .full-start-new__buttons');
+                                console.log('Liya: кнопка добавлена');
                             }
                         }, 200);
                     }
                 });
-                console.log('Liya target-buttons ready!');
+                console.log('Liya: слушатель full/start подключён');
             }
         });
     }

@@ -67,7 +67,7 @@
                                         size: 'medium',
                                         onBack: function () {
                                             // 1. Отписываемся от навигации
-                                            Lampa.Selector.set(modal, []); // ← обнуляем селекторы
+                                            Lampa.Selector.set(btn, list.find('.selector')); // ← обнуляем селекторы
                                     
                                             Lampa.Modal.close();
                                         }

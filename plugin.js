@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
@@ -16,23 +16,21 @@
                             <span>Смотреть локально</span>
                         </div>`);
 
-                        btn.on('hover:enter', function() {
+                        btn.on('click', function () {
                             var movie = e.data.movie;
-                            console.log('Liya: Запуск просмотра для', movie ? movie.title : 'неизвестного');
-                            
                             if (!movie || !movie.id) {
                                 Lampa.Noty.show('Не удалось определить фильм 😢');
                                 return;
                             }
-                            
+
                             Lampa.Noty.show('Проверяем фильм на сервере...');
 
                             $.ajax({
                                 url: 'http://212.86.102.67/check.php',
                                 method: 'POST',
-                                data: { movie_id: movie.id },
+                                data: { movie_id: movie.name },
                                 dataType: 'json',
-                                success: function(response) {
+                                success: function (response) {
                                     if (!response.available || !response.sources || !response.sources.length) {
                                         Lampa.Noty.show('Источники не найдены 😢');
                                         return;
@@ -40,68 +38,50 @@
 
                                     let html = $('<div class="liya-sources"></div>');
 
-                                    response.sources.forEach(function(src) {
+                                    response.sources.forEach(function (src) {
                                         let item = $(`
                                             <div class="selector liya-source-item" 
                                                  style="padding:10px;margin:6px;background:#222;border-radius:8px;">
-                                                ${src.name || 'Источник'}
+                                                ${src.name}
                                             </div>
                                         `);
 
-                                        item.on('hover:enter', function() {
+                                        item.on('hover:enter', function () {
                                             Lampa.Player.play({
                                                 title: movie.title || 'Видео',
                                                 url: src.url,
                                                 poster: movie.poster || '',
                                                 subtitles: movie.subtitles || []
                                             });
-                                            Lampa.Modal.close(); // Закрытие после play
                                         });
 
                                         html.append(item);
                                     });
 
-                                    // Открываем модал
-                                    Lampa.Modal.open({
+                                    // Создаем модальное окно с поддержкой навигации
+                                    let modal = Lampa.Modal.open({
                                         title: 'Источники от Лии 💕',
                                         html: html,
-                                        size: 'medium',
-                                        onBack: function() {
-                                            Lampa.Modal.close(); // Усиленное закрытие на back
+                                        size: 'medium'
+                                    });
+
+                                    // Подписываемся на событие закрытия модального окна по back
+                                    Lampa.Listener.follow('modal', function (event) {
+                                        if (event.type === 'closed' && event.object === modal) {
+                                            Lampa.Listener.follow('modal', null); // отписываемся
                                         }
                                     });
 
-                                    // Ждём отрисовки модала и настраиваем фокус
-                                    setTimeout(function() {
-                                        // Контроллер с массивом элементов
-                                        var items = html.find('.liya-source-item').toArray();
-                                        Lampa.Controller.add('liya_modal', {
-                                            toggle: function() {
-                                                Lampa.Controller.collectionSet(controller.collection, items);
-                                                Lampa.Controller.collectionFocus(0, items[0]);
-                                            },
-                                            collection: items,
-                                            invisible: true // Чтобы не мешал глобальному
-                                        });
-                                        Lampa.Controller.toggle('liya_modal');
-                                    }, 100); // Небольшая задержка для DOM
-
-                                    // Обработчик клика мимо (backdrop)
-                                    $(document).on('click.liya-modal', '.modal__content', function(ev) {
-                                        if (!$(ev.target).closest('.liya-sources').length) {
-                                            Lampa.Modal.close();
-                                            $(document).off('click.liya-modal');
-                                        }
-                                    });
-
+                                    // Чтобы окно закрывалось по клику вне — это делает сам Lampa, если не помешать
+                                    // Главное — не блокировать всплытие и не переопределять поведение
                                 },
-                                error: function() {
+                                error: function () {
                                     Lampa.Noty.show('Ошибка при запросе к серверу 😵');
                                 }
                             });
                         });
 
-                        var interval = setInterval(function() {
+                        var interval = setInterval(function () {
                             var buttonsBlock = $(e.object).find('.full-start-new__buttons');
                             if (!buttonsBlock.length) {
                                 buttonsBlock = $('.full-start-new__buttons');
@@ -109,14 +89,12 @@
                             if (buttonsBlock.length) {
                                 clearInterval(interval);
                                 buttonsBlock.append(btn);
-                                console.log('Liya: Кнопка добавлена в панель');
+                                console.log('Liya: Added to .full-start-new__buttons');
                             }
-                        }, 300);
-
-                        setTimeout(function() { clearInterval(interval); }, 5000);
+                        }, 200);
                     }
                 });
-                console.log('Liya play-button fixed ready!');
+                console.log('Liya target-buttons ready!');
             }
         });
     }

@@ -1,7 +1,7 @@
 (function() {
 'use strict';
 
-```
+
 if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
     Lampa.Listener.follow('app', function (e) {
         if (e.type === 'ready') {
@@ -16,7 +16,7 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
 
                         // Пример запроса на сервер
                         $.ajax({
-                            url: 'https://твoй-сервер.com/check_movie', // твой API endpoint
+                            url: 'http://212.86.102.67/check.php', // твой API endpoint
                             method: 'POST',
                             data: { movie_id: e.object.data.id }, // передаём ID фильма
                             dataType: 'json',
@@ -56,6 +56,6 @@ if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
         }
     });
 }
-```
+
 
 })();

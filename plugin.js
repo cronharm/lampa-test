@@ -28,7 +28,7 @@
     Lampa.Listener.follow('full', function (e) {
         if (e.type === 'complite') {
             let parent = e.object.activity.render();
-            let block = parent.find('.view--torrent');
+            let block = parent.find('.full-start-new__buttons');
 
             addButton({
                 render: block,

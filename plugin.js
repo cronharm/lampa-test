@@ -75,7 +75,7 @@
                             $.ajax({
                                 url: 'http://212.86.102.67/check.php',
                                 method: 'POST',
-                                 { movie_id: movie.name }, // ← ИСПРАВЛЕНО: добавлено 'data'
+                                data: { movie_id: movie.name }, // ← ИСПРАВЛЕНО: добавлено 'data'
                                 dataType: 'json',
                                 timeout: 10000,
                                 success: function (response) {

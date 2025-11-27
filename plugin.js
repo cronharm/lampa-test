@@ -39,7 +39,7 @@
             '.full-activity .view'
         ).first();*/
         let container = $(
-            'full-start-new__buttons'
+            'button--play'
         ).first();
 
         if (container.length === 0) return;

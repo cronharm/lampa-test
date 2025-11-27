@@ -2,83 +2,77 @@
     'use strict';
 
     function initPlugin() {
-        console.log('My Online Button: Инициализация с нативным UI');
+        console.log('My Online Button: Запуск без Template — нативный HTML');
 
         Lampa.Listener.follow('full', function (e) {
-            console.log('My Online Button: Full event:', e.type, e.data);
+            console.log('My Online Button: Full событие:', e.type, 'Данные:', e.data);
 
             if (e.type === 'start') {
                 var card = e.data.movie;
-                console.log('My Online Button: Card data:', card);
+                console.log('My Online Button: Данные карточки:', card);
 
                 if (card && (card.original_title || card.name || card.title)) {
-                    // Ждём, пока плеер полностью загрузится (таймаут из примеров плагинов)
+                    // Небольшая задержка, чтобы плеер отрисовался (как в плагинах)
                     setTimeout(function() {
-                        createNativeOnlineButton(e, card);
-                    }, 500);
+                        createHtmlOnlineButton(e, card);
+                    }, 800);
+                } else {
+                    console.log('My Online Button: Нет карточки — пропускаем');
                 }
             }
         });
     }
 
-    function createNativeOnlineButton(e, card) {
-        // Удаляем старую
-        var oldButton = document.querySelector('#online-watch-btn');
-        if (oldButton) oldButton.remove();
-
-        // Создаём через Lampa.Template — как в online_mod.js (button или more для меню)
-        var params = {
-            title: 'Онлайн',
-            html: $('<div></div>').text('Смотреть онлайн (HDRezka)').prop('title', 'Открыть онлайн-плеер'),
-            class: 'open focus selector', // Классы для фокуса и стиля Lampa
-            onclick: openOnlinePlayer.bind(null, card) // Bind для передачи card
-        };
-
-        // Пробуем Template.get('button') — стандарт для кнопок в плеере
-        var button;
-        if (Lampa.Template && Lampa.Template.get) {
-            button = Lampa.Template.get('button', params);
-            console.log('My Online Button: Кнопка создана через Template');
-        } else {
-            // Fallback на HTML, но с классами для эмуляции
-            button = $('<div/>', {
-                id: 'online-watch-btn',
-                class: 'selector focus open',
-                text: 'Смотреть онлайн',
-                css: { margin: '5px', padding: '10px', background: '#ff4757', color: 'white', borderRadius: '5px', textAlign: 'center' },
-                click: function() { openOnlinePlayer(card); }
-            });
-            console.log('My Online Button: Fallback HTML-кнопка');
+    function createHtmlOnlineButton(e, card) {
+        // Чистим старую
+        var oldButton = document.getElementById('online-watch-btn');
+        if (oldButton) {
+            oldButton.remove();
+            console.log('My Online Button: Старую удалили');
         }
 
-        // Ищем правильный контейнер: панель справа в плеере (из исходников player.js)
-        var rightPanel = document.querySelector('.player-panel__right') || 
-                         document.querySelector('.player__right') || 
-                         document.querySelector('.controls__right') || 
-                         document.querySelector('.selector'); // Список опций
-        console.log('My Online Button: Контейнер для вставки:', rightPanel);
+        // HTML-кнопка с классами Lampa для фокуса и стилей (из примеров плагинов)
+        var buttonHtml = '<div id="online-watch-btn" class="selector focus open" style="display: inline-block; margin: 5px; padding: 10px 15px; background: #ff4757; color: white; border-radius: 5px; font-size: 14px; text-align: center; cursor: pointer; z-index: 10;">Смотреть онлайн</div>';
 
-        if (rightPanel) {
-            // Append как child — в плагинах так добавляют в меню
-            $(rightPanel).append(button);
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = buttonHtml;
+        var button = tempDiv.firstChild;
 
-            // Фокус через Lampa (если доступно) или вручную
+        // Обработчик клика
+        button.addEventListener('click', function() {
+            console.log('My Online Button: Кликнули!');
+            openOnlinePlayer(card);
+        });
+
+        // Ищем контейнер: toolbar или selector в плеере (стандарт из player.js)
+        var toolbar = document.querySelector('.player-panel__toolbar') || 
+                      document.querySelector('.player__controls') || 
+                      document.querySelector('.selector') || 
+                      document.querySelector('.player-panel');
+        console.log('My Online Button: Контейнер найден:', toolbar);
+
+        if (toolbar) {
+            toolbar.appendChild(button);
+
+            // Фокус: через Lampa.Controller (если есть, как в плагинах) или нативно
             if (Lampa.Controller && Lampa.Controller.focus) {
-                Lampa.Controller.focus($(button)[0]);
+                Lampa.Controller.focus(button);
                 console.log('My Online Button: Фокус через Controller');
             } else {
                 button.focus();
+                // Эмуляция active для пульта (добавляем класс)
+                button.classList.add('active');
             }
 
-            // Добавляем в навигацию: обновляем active для selector (из примеров)
-            if (rightPanel.classList.contains('selector')) {
-                rightPanel.querySelector('.selector').classList.add('active'); // Или button.addClass('active')
+            // Дополнительно: обновляем контроллер, чтобы кнопка в навигации (из примеров)
+            if (Lampa.Controller && Lampa.Controller.update) {
+                Lampa.Controller.update();
             }
 
-            console.log('My Online Button: Кнопка вставлена и сфокусирована');
+            console.log('My Online Button: Кнопка на месте, фокус дан');
         } else {
-            console.log('My Online Button: Не нашли панель — fallback в body');
-            $('body').append(button);
+            console.log('My Online Button: Контейнер не найден — в body');
+            document.body.appendChild(button);
             button.focus();
         }
     }
@@ -87,52 +81,59 @@
         var title = card.original_title || card.name || card.title || '';
         var year = card.release_date ? card.release_date.substring(0, 4) : '';
         var query = encodeURIComponent(title + (year ? ' ' + year : ''));
-        console.log('My Online Button: Запрос для онлайн:', query);
+        console.log('My Online Button: Ищем по:', query);
 
-        var rezkaSearch = 'https://rezkafilm.net/search?phrase=' + query;
+        // Пример для Rezka (добавь прокси, если CORS)
+        var searchUrl = 'https://rezkafilm.net/search?phrase=' + query;
 
-        fetch(rezkaSearch, {
+        fetch(searchUrl, {
             method: 'GET',
-            headers: { 'User-Agent': 'Mozilla/5.0 (Android TV; Lampa)' }
+            headers: { 'User-Agent': 'Mozilla/5.0 (Android; Lampa/1.0)' }
         })
-        .then(response => response.text())
-        .then(html => {
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
+            console.log('My Online Button: HTML загружен');
             var videoUrl = extractVideoUrl(html);
             if (videoUrl) {
-                // Запуск в плеере Lampa — как в нативных кнопках
-                Lampa.Player.play({ url: videoUrl, timeline: 0 });
-                console.log('My Online Button: Плеер запущен');
+                // Запуск как в Lampa
+                if (Lampa.Player && Lampa.Player.play) {
+                    Lampa.Player.play({ url: videoUrl });
+                } else {
+                    window.location.href = videoUrl; // Fallback
+                }
+                console.log('My Online Button: Видео пошло:', videoUrl);
             } else {
-                Lampa.Noty.show('Ссылка не найдена, попробуй поиск вручную');
+                Lampa.Noty ? Lampa.Noty.show('Не нашлось, поищи сам') : alert('Ссылка не найдена');
             }
         })
-        .catch(err => {
-            Lampa.Noty.show('Ошибка: ' + err.message);
-            console.log('Ошибка:', err);
+        .catch(function(err) {
+            console.log('My Online Button: Ошибка:', err);
+            Lampa.Noty ? Lampa.Noty.show('Сеть барахлит: ' + err.message) : alert(err.message);
         });
     }
 
     function extractVideoUrl(html) {
-        // Улучшенный матч для Rezka (из парсеров плагинов)
-        var match = html.match(/<a href="([^"]+)"[^>]*data-original[^>]*>(.*?"+title+"[^<]*)<\/a>/i);
+        // Простой парсинг для Rezka (улучши по нужде)
+        var match = html.match(/<a href="([^"]*\/release\/[^"]*)"[^>]*>(.*?"+title+"[^<]*)<\/a>/i);
         if (match) {
-            return 'https://rezkafilm.net' + match[1]; // Или полный парсинг плеера
+            return 'https://rezkafilm.net' + match[1]; // Полная страница, потом парсь плеер
         }
-        // Симуляция для теста
-        return 'https://example.com/test-stream.m3u8';
+        // Тестовая ссылка
+        return 'https://example.com/stream.m3u8';
     }
 
-    // Запуск с ожиданием Lampa и jQuery (Lampa использует $)
-    function waitForLampa() {
-        if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
+    // Ждём Lampa
+    function waitAndInit() {
+        if (typeof Lampa !== 'undefined') {
             initPlugin();
         } else {
-            setTimeout(waitForLampa, 300);
+            setTimeout(waitAndInit, 400);
         }
     }
-    waitForLampa();
+    waitAndInit();
 
+    // Плагин-регистр
     if (window.Lampa_Plugins) {
-        window.Lampa_Plugins.push({ name: 'My Online Button Native', init: initPlugin });
+        window.Lampa_Plugins.push({ name: 'Online Button HTML', init: initPlugin });
     }
 })();

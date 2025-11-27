@@ -1,72 +1,84 @@
-Lampa.Listener.follow('full', function(ev) {
-    if (ev.type === 'render') {
+(function() {
+    'use strict';
 
-        // удаляем старые, если дублировались
-        $('.liya-btn').remove();
+    // Ждём загрузки Lampa
+    if (typeof Lampa !== 'undefined') {
+        initPlugin();
+    } else {
+        document.addEventListener('DOMContentLoaded', initPlugin);
+    }
 
-        let buttonsBlock = $(ev.object).find('.full-start-new__buttons');
-        if (!buttonsBlock.length) return;
-
-        // создаём ламповую кнопку
-        let btn = createLiyaButton();
-
-        // обработчик — как у тебя
-        $(btn).on('hover:enter', function() {
-            let movie = ev.data.movie;
-
-            if (!movie || !movie.id) {
-                Lampa.Noty.show('Не удалось определить фильм 😢');
-                return;
-            }
-
-            Lampa.Noty.show('Проверяем фильм на сервере...');
-
-            $.ajax({
-                url: 'http://212.86.102.67/check.php',
-                method: 'POST',
-                data: { movie_id: movie.name },
-                dataType: 'json',
-                success: function(response) {
-                    if (!response.available || !response.sources) {
-                        Lampa.Noty.show('Источники не найдены 😢');
-                        return;
-                    }
-
-                    let list = $('<div style="padding:10px;"></div>');
-
-                    response.sources.forEach(src => {
-                        let item = $(`<div class="selector" style="padding:10px;margin:6px;background:#222;border-radius:8px;">${src.name}</div>`);
-                        item.on('hover:enter', () => {
-                            Lampa.Player.play({
-                                title: movie.title || 'Видео',
-                                url: src.url,
-                                poster: movie.poster || ''
-                            });
-                        });
-                        list.append(item);
-                    });
-
-                    let modal = Lampa.Modal.open({
-                        title: 'Источники от Лии 💕',
-                        html: list,
-                        size: 'medium',
-                        onBack: () => Lampa.Modal.close()
-                    });
-
-                    Lampa.Selector.set(modal, list.find('.selector'));
-                },
-                error: () => {
-                    Lampa.Noty.show('Ошибка при запросе 😵');
+    function initPlugin() {
+        // Подписываемся на событие полного экрана плеера
+        Lampa.Listener.follow('full', function (e) {
+            if (e.type === 'start') {
+                // e.data — данные о карточке (фильм/сериал)
+                var card = e.data.card || e.data; // Возьми данные
+                if (card && card.original_title) { // Проверяем, есть ли фильм
+                    createOnlineButton(e, card);
                 }
-            });
+            }
+        });
+    }
+
+    function createOnlineButton(e, card) {
+        // Удаляем старую кнопку, если есть
+        var oldButton = document.querySelector('#online-watch-btn');
+        if (oldButton) oldButton.remove();
+
+        // Создаём кнопку
+        var button = Lampa.Template.get('button', {
+            title: 'Смотреть онлайн',
+            html: 'Онлайн (HDRezka)',
+            class: 'selector focus',
+            onclick: function() {
+                openOnlinePlayer(card);
+            }
         });
 
-        // ВСТАВЛЯЕМ ламповую кнопку
-        buttonsBlock.append(btn);
+        // Добавляем стиль (опционально, для красоты)
+        button.style.cssText = 'position: absolute; top: 10px; right: 10px; z-index: 100; background: #ff0000; color: white; padding: 10px; border-radius: 5px;';
 
-        // навигация начнёт работать сразу (ламповый компонент)
-        Lampa.Selector.update();
+        // Вставляем в плеер (в body или в контролы плеера)
+        var player = document.querySelector('.player') || document.body;
+        button.id = 'online-watch-btn';
+        player.appendChild(button);
 
-        console.log('Liya: ламповая кнопка добавлена');
+        // Фокус на кнопку (для пульта)
+        button.focus();
     }
-});
+
+    // Функция открытия онлайн-плеера (пример с парсингом Rezka)
+    function openOnlinePlayer(card) {
+        var query = encodeURIComponent(card.original_title + ' ' + (card.release_date || ''));
+        var rezkaUrl = 'https://rezkafilm.net/search/' + query; // Пример URL поиска
+
+        // Fetch ссылок (нужен CORS-прокси, если блокирует; в плагинах используют proxy)
+        fetch('https://cors-anywhere.herokuapp.com/' + rezkaUrl) // Замени на рабочий прокси
+            .then(response => response.text())
+            .then(html => {
+                // Парсим HTML (простой пример; в реальности используй cheerio или regex)
+                var videoUrl = extractVideoUrl(html); // Твоя функция парсинга
+                if (videoUrl) {
+                    Lampa.Player.play({url: videoUrl}); // Запуск в плеере Lampa
+                } else {
+                    Lampa.Noty.show('Ссылка не найдена :(');
+                }
+            })
+            .catch(err => {
+                Lampa.Noty.show('Ошибка поиска: ' + err);
+            });
+    }
+
+    // Пример функции парсинга (упрощённо; доработай под Rezka API)
+    function extractVideoUrl(html) {
+        // Ищи iframe или video src в HTML
+        var match = html.match(/<iframe src="([^"]+embed[^"]+)"/);
+        return match ? match[1] : null;
+    }
+
+    // Автозапуск
+    if (window.Lampa_Plugins) {
+        window.Lampa_Plugins.push({name: 'My Online Button', init: initPlugin});
+    }
+})();

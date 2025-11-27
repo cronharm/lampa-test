@@ -15,6 +15,7 @@
                     createOnlineButton(e, card);
                 } else {
                     console.log('My Online Button: Нет данных о карточке');
+                    createOnlineButton(e, card);
                 }
             }
         });

@@ -5,7 +5,7 @@
         if (!e.render.length) return; // чтобы не падало
         if (e.render.find('.lampac--buttonv').length) return;
 
-        let btn = $('<div class="full-start__button selector button--play"><svg><use xlink:href="#sprite-play"></use></svg><span>Смотреть онлайн</span></div>');
+        let btn = $('<div class="full-start__button selector button--online"><svg><use xlink:href="#sprite-play"></use></svg><span>Смотреть онлайн</span></div>');
 
         btn.on('hover:enter', function () {
             resetTemplates();

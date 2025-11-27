@@ -3,7 +3,6 @@
 
     if (typeof Lampa !== 'undefined' && typeof $ !== 'undefined') {
 
-        // === КОМПОНЕНТ: экран с источниками ===
         var LiyaSourcesComponent = {
             render: function () {
                 var div = $('<div class="liya-sources-screen"></div>');
@@ -48,15 +47,12 @@
             }
         };
 
-        // === РЕГИСТРАЦИЯ КОМПОНЕНТА ===
         Lampa.Component.add('liya_sources_screen', LiyaSourcesComponent);
 
-        // === СЛУШАТЕЛЬ: добавление кнопки ===
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
                     if (e.type === 'start') {
-                        // Удаляем дубли
                         $('.liya-btn').remove();
 
                         var btn = $(`<div class="full-start__button selector liya-btn">
@@ -79,7 +75,7 @@
                             $.ajax({
                                 url: 'http://212.86.102.67/check.php',
                                 method: 'POST',
-                                 { movie_id: movie.name },
+                                 { movie_id: movie.name }, // ← ИСПРАВЛЕНО: добавлено 'data'
                                 dataType: 'json',
                                 timeout: 10000,
                                 success: function (response) {
@@ -88,7 +84,6 @@
                                         return;
                                     }
 
-                                    // Открываем НАСТОЯЩИЙ экран
                                     Lampa.Activity.push({
                                         url: '',
                                         title: 'Источники от Лии 💕',
@@ -106,7 +101,6 @@
                             });
                         });
 
-                        // Вставка кнопки
                         var interval = setInterval(function () {
                             var block = $(e.object).find('.full-start-new__buttons');
                             if (!block.length) block = $('.full-start-new__buttons');

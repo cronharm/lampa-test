@@ -6,7 +6,7 @@
 
     // Сама кнопка
     function createButton() {
-        let btn = $('<div class="selector focus button--online">Смотреть онлайн</div>');
+        let btn = $('<div class="selector focus button--online">Смотреть онлайн2</div>');
         
         btn.on('hover:enter', function () {
             let movie = window.movie || Lampa.Storage.get('activity_movie') || {};

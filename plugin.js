@@ -2,6 +2,7 @@
     'use strict';
 
     function addButton(e) {
+        if (!e.render.length) return; // чтобы не падало
         if (e.render.find('.lampac--buttonv').length) return;
 
         let btn = $('<div class="lampac--buttonv selector">Смотреть онлайн</div>');
@@ -21,13 +22,16 @@
             });
         });
 
-        e.render.after(btn); 
+        e.render.after(btn);
     }
 
     Lampa.Listener.follow('full', function (e) {
         if (e.type === 'complite') {
+            let parent = e.object.activity.render();
+            let block = parent.find('.view--torrent');
+
             addButton({
-                render: e.object.html.find('.view--torrent'),
+                render: block,
                 movie: e.data.movie
             });
         }

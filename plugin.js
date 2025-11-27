@@ -8,7 +8,7 @@
             console.log('My Online Button: Событие full, тип:', e.type, 'Данные:', e.data); // Лог события
 
             if (e.type === 'start') {
-                var card = e.data.card || e.data.movie || e.data.item; // Расширенная проверка — иногда item или data напрямую
+                var card = e.data.movie || e.data.item; // Расширенная проверка — иногда item или data напрямую
                 console.log('My Online Button: Карточка фильма:', card); // Лог данных
 
                 if (card && (card.original_title || card.name || card.title)) { // Более мягкая проверка

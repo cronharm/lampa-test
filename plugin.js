@@ -31,12 +31,15 @@
         if (buttonAdded) return;
 
         // Ищем любой из известных контейнеров торрентов (подходит для всех сборок)
-        let container = $(
+        /*let container = $(
             '.view--torrent, ' +
             '.torrents, ' +
             '.view--sources, ' +
             '.sources--torrent, ' +
             '.full-activity .view'
+        ).first();*/
+        let container = $(
+            'full-start-new__buttons'
         ).first();
 
         if (container.length === 0) return;

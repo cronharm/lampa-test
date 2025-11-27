@@ -5,7 +5,8 @@
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') {
                 Lampa.Listener.follow('full', function (e) {
-                    if (e.type === 'start') {
+                    //if (e.type === 'start') {
+                    if (e.type === 'render') {
                         // Удаляем предыдущие кнопки на случай дублирования
                         $('.liya-btn').remove();
 
@@ -83,17 +84,19 @@
                         });
 
                         // Ждём появления кнопочного блока и вставляем туда нашу кнопку
-                        var interval = setInterval(function () {
+                       // var interval = setInterval(function () {
                             var buttonsBlock = $(e.object).find('.full-start-new__buttons');
-                            if (!buttonsBlock.length) {
+                            /*if (!buttonsBlock.length) {
                                 buttonsBlock = $('.full-start-new__buttons');
                             }
                             if (buttonsBlock.length) {
-                                clearInterval(interval);
+                                clearInterval(interval);*/
                                 buttonsBlock.append(btn);
+                                // 🔥 Сразу обновляем сетку фокусов
+                                setTimeout(() => Lampa.Selector.update(), 30);
                                 console.log('Liya: кнопка добавлена');
-                            }
-                        }, 200);
+                            //}
+                       // }, 200);
                     }
                 });
                 console.log('Liya: слушатель full/start подключён');

@@ -5,13 +5,11 @@
         let container = e.render;
 
         if (!container || !container.length) {
-            console.log('[PLUGIN] контейнер кнопок не найден');
             return;
         }
 
         // Чтобы не добавлять два раза
         if (container.find('.button--ourserver').length) {
-            console.log('[PLUGIN] кнопка уже есть');
             return;
         }
 
@@ -32,7 +30,7 @@
                 return;
             }
         
-            Lampa.Noty.show('Проверяем фильм на сервере...');
+            //Lampa.Noty.show('Проверяем фильм на сервере...');
         
             $.ajax({
                 url: 'http://212.86.102.67/check.php',
@@ -54,7 +52,7 @@
         
                     // Открываем ламповый selectbox
                     Lampa.Select.show({
-                        title: 'Источники от Лии 💕',
+                        title: 'Источники',
                         items: items,
                         onSelect: function (item) {
                             Lampa.Player.play({
@@ -79,16 +77,12 @@
         // Вставляем ВНУТРЬ блока
         container.append(btn);
 
-        console.log('[PLUGIN] кнопка вставлена внутрь full-start-new__buttons');
     }
 
     Lampa.Listener.follow('full', function (e) {
         if (e.type === 'complite') {
             let parent = e.object.activity.render();
             let block = parent.find('.full-start-new__buttons');
-
-            console.log('[PLUGIN] найден блок кнопок:', block.length);
-
             addButton({
                 render: block,
                 movie: e.data.movie

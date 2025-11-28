@@ -76,34 +76,19 @@
             }
 
             // ТЕСТ: жёстко задан ID фильма и перевод
-            window.LiyaRezka.getVideo(969, 1, function (result) {
-                if (result.error) {
-                    Lampa.Noty.show(result.error);
-                    return;
-                }
-
-                // ❗ ИСПРАВЛЕНО: result, а не response
-                let items = result.sources.map(src => ({
-                    title: src.name,
-                    url: src.url
-                }));
-
-                Lampa.Select.show({
-                    title: 'Источники',
-                    items: items,
-                    onSelect: function (item) {
-                        Lampa.Player.play({
-                            title: movie.title,
-                            url: item.url,
-                            poster: movie.poster || '',
-                            subtitles: movie.subtitles || []
-                        });
-                    },
-                    onBack: function () {
-                        Lampa.Controller.toggle('content');
-                    }
-                });
-            });
+            window.LiyaRezka = {
+    getVideo: function (filmId, translatorId, callback) {
+        // Просто проверим, работает ли вообще Lampa.Network
+        Lampa.Network.send({
+            url: 'https://httpbin.org/get',
+            method: 'GET'
+        }, function (result) {
+            callback({ sources: [{ name: 'Тест: сеть работает', url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }] });
+        }, function () {
+            callback({ error: 'Сеть не работает' });
+        });
+    }
+};
         });
 
         container.append(btn);
